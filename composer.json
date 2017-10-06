@@ -1,5 +1,5 @@
 {
-    "name": "xing/yii2-webuploader",
+    "name": "xing/webuploader",
     "description": "webuploader 支持Yii2",
     "keywords": ["webuploader"],
     "license": "MIT",
