@@ -52,8 +52,8 @@ echo $form->field($model, 'thumb')->widget('xing\webuploader\yii2\FileInput');
 
 ?>
 <div class="form-group field-store-thumb">
-    <label class="control-label" for="store-thumb">商品相册</label>
-    <?=\xing\webuploader\yii2\FileInput::widget(['name' => 'photos','value' => '123.jpg'])?>
+    <label class="control-label" for="store-thumb">商品封面</label>
+    <?=\xing\webuploader\yii2\FileInput::widget(['name' => 'thumb','value' => '123.jpg'])?>
 </div>
 ```
 
@@ -61,22 +61,18 @@ echo $form->field($model, 'thumb')->widget('xing\webuploader\yii2\FileInput');
 ```php
 <?php 
 // ActiveForm
-echo $form->field($model, 'file2')->widget('manks\FileInput', [
-	'clientOptions' => [
+echo $form->field($model, 'photos')->widget('xing\webuploader\yii2\FileInput', [
+	'options' => [
 		'pick' => [
 			'multiple' => true,
 		],
-		// 'server' => Url::to('upload/u2'),
-		// 'accept' => [
-		// 	'extensions' => 'png',
-		// ],
 	],
 ]); ?>
 
 // 非ActiveForm
 
-<div class="form-group field-store-thumb">
-    <label class="control-label" for="store-thumb">商品相册</label>
+<div class="form-group field-store-photos">
+    <label class="control-label" for="store-photos">商品相册</label>
     <?=\xing\webuploader\yii2\FileInput::widget(['name' => 'photos', 'options' => ['formData' => [
         'module' => $model->formName()],
         'pick' => ['multiple' => true]
@@ -95,6 +91,7 @@ class FileUploadController extends \yii\rest\Controller
         try {
             // 参考或下载我的另一个项目： xing.chen/upload
             $return = \xing\upload\core\UploadFactory::getInstance('yii')->upload('file', Yii::$app->request->post('module'));
+            // 返回上传成功
             return [
                 'msg' => null,
                 'code' => 0,
@@ -102,6 +99,7 @@ class FileUploadController extends \yii\rest\Controller
                 'attachment' => $return['saveUrl'],
             ];
         } catch (\Exception $e) {
+            # 返回上传失败
             return ['msg' => $e->getMessage(), 'code' => 1];
         }
     }
