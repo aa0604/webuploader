@@ -1,0 +1,12 @@
+{
+    "name": "xing/yii2-webuploader",
+    "description": "webuploader 支持Yii2",
+    "keywords": ["webuploader"],
+    "license": "MIT",
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "autoload": {
+        "psr-4": { "xing\\": "" }
+    }
+}

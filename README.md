@@ -1,42 +1,43 @@
 # yii2-webuploader
 ==========================
 
-此扩展集成webuploader图片上传插件，旨在更好的处理 Yii2 framework 图片上传的前端问题，目前支持多图多字段多modal的混合上传。
+使用框架：YII2
+特点：支持表单widget 和非表单widget，单图、多图、多字段、多model
+使用webuploader插件
+
+更新速度：正式项目中使用，按需求更新（无新需求不更新）
 
 
 ## 安装
 
-
 推荐使用composer进行安装
 
 ```
-$ php composer.phar require bailangzhan/yii2-webuploader dev-master
+$ php composer.phar require xing.chen/webuploader dev-master
 ```
 
 ## 使用
-params.php或者params-local.php内增加webuploader和domain配置项
+在params.php或者params-local.php内增加xingUploader
 ```php
-// 图片服务器的域名设置，拼接保存在数据库中的相对地址，可通过web进行展示
-'domain' => 'http://blog.m/',
-'webuploader' => [
-	// 后端处理图片的地址，value 是相对的地址
-	'uploadUrl' => 'blog/upload',
-	// 多文件分隔符
-	'delimiter' => ',',
-	// 基本配置
-	'baseConfig' => [
-		'defaultImage' => 'http://img1.imgtn.bdimg.com/it/u=2056478505,162569476&fm=26&gp=0.jpg',
-		'disableGlobalDnd' => true,
-		'accept' => [
-			'title' => 'Images',
-			'extensions' => 'gif,jpg,jpeg,bmp,png',
-			'mimeTypes' => 'image/*',
-		],
-		'pick' => [
-			'multiple' => false,
-		],
-	],
-],
+'xingUploader' => [
+        // 访问url 
+        'visitDomain' => '如http://xxx.com/upload/或/upload',
+        // 上传url
+        'uploadUrl' => '/file-upload/xing',
+        'config' => [
+        // 上传无图片时预览时的默认图片
+            'defaultImage' => '/images/icon/upload.jpg',
+            'disableGlobalDnd' => true,
+            'accept' => [
+                'title' => 'Images',
+                'extensions' => 'gif,jpg,jpeg,bmp,png',
+                'mimeTypes' => 'image/jpg,image/jpeg,image/png,image/gif,image/bmp',
+            ],
+            'pick' => [
+                'multiple' => false,
+            ],
+        ],
+    ],
 ```
 
 视图文件
@@ -45,16 +46,15 @@ params.php或者params-local.php内增加webuploader和domain配置项
 ```php
 <?php 
 // ActiveForm
-echo $form->field($model, 'file')->widget('manks\FileInput', [
-]); 
+echo $form->field($model, 'thumb')->widget('xing\webuploader\yii2\FileInput'); 
 
 // 非 ActiveForm
-echo '<label class="control-label">图片</label>';
-echo \manks\FileInput::widget([
-    'model' => $model,
-    'attribute' => 'file',
-]);
+
 ?>
+<div class="form-group field-store-thumb">
+    <label class="control-label" for="store-thumb">商品相册</label>
+    <?=\xing\webuploader\yii2\FileInput::widget(['name' => 'photos','value' => '123.jpg'])?>
+</div>
 ```
 
 多图
@@ -74,29 +74,40 @@ echo $form->field($model, 'file2')->widget('manks\FileInput', [
 ]); ?>
 
 // 非ActiveForm
-echo '<label class="control-label">图片</label>';
-echo \manks\FileInput::widget([
-	'model' => $model,
-	'attribute' => 'file',
-	'clientOptions' => [
-		'pick' => [
-			'multiple' => true,
-		],
-	]
-]); 
+
+<div class="form-group field-store-thumb">
+    <label class="control-label" for="store-thumb">商品相册</label>
+    <?=\xing\webuploader\yii2\FileInput::widget(['name' => 'photos', 'options' => ['formData' => [
+        'module' => $model->formName()],
+        'pick' => ['multiple' => true]
+    ]])?>
+</div>
 ```
 
-控制器
-controller的地址可以在params.php或者params-local.php中配置 `Yii::$app->params['webuploader']['uploadUrl']`, 也可以在 clientOptions中配置 `server` 项。控制器需要返回的数据格式如下
+### 控制器处理示例
 ```php
-// 错误时
-{"code": 1, "msg": "error"}
+<?php
 
-// 正确时， 其中 attachment 指的是保存在数据库中的路径，url 是该图片在web可访问的地址
-{"code": 0, "url": "http://domain/图片地址", "attachment": "图片地址"}
+class FileUploadController extends \yii\rest\Controller
+{
+    public function actionXing()
+    {
+        try {
+            // 参考或下载我的另一个项目： xing.chen/upload
+            $return = \xing\upload\core\UploadFactory::getInstance('yii')->upload('file', Yii::$app->request->post('module'));
+            return [
+                'msg' => null,
+                'code' => 0,
+                'url' => $return['url'],
+                'attachment' => $return['saveUrl'],
+            ];
+        } catch (\Exception $e) {
+            return ['msg' => $e->getMessage(), 'code' => 1];
+        }
+    }
+}
+?>
 ```
 
 ## 注意
 如果是修改的多图片操作，务必保证 $model->file = 'src1,src2,src3,...'; 或者 $model->file = ['src1', 'src2'. 'src3', ...];
-
-"# webuploader" 
