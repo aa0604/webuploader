@@ -137,6 +137,6 @@ JS;
 
     private function getFullUrl($url)
     {
-        return $url ? $this->visitDomain . $url : $this->config['defaultImage'];
+        return $url ? (preg_match('/:\/\//', $url) ? '' : $this->visitDomain ) . $url : $this->config['defaultImage'];
     }
 }
